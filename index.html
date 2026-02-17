@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ckb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>یاری دۆزینەوەی ئیمپۆستەر</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            direction: rtl;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        button.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .players-list {
+            margin: 20px 0;
+        }
+        
+        .player-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .player-item.creator {
+            background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
+        }
+        
+        .badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .chat-box {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            height: 250px;
+            overflow-y: auto;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .message strong {
+            color: #667eea;
+            margin-left: 5px;
+        }
+        
+        .word-display {
+            font-size: 48px;
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .imposter-box {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .room-code {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        .online-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- بەشی سەرەکی -->
+        <div id="mainScreen" class="card">
+            <h1>🎮 یاری ئیمپۆستەر</h1>
+            <div class="online-badge">🌐 ئۆنلاین - ئامادەی یاریکردن</div>
+            
+            <input type="text" id="playerName" placeholder="ناوی تۆ بنووسە" value="یاریکەر">
+            
+            <button onclick="showCreateGame()">دروستکردنی ژوری نوێ</button>
+            <button class="secondary" onclick="showJoinGame()">پەیوەست بوون بە ژور</button>
+            
+            <div id="joinGameSection" class="hidden">
+                <input type="text" id="roomCodeInput" placeholder="کۆدی ژورەکە بنووسە">
+                <button onclick="joinGame()">پەیوەست بە</button>
+            </div>
+        </div>
+        
+        <!-- ژوری چاوەڕوانی -->
+        <div id="waitingRoom" class="card hidden">
+            <h2>🔄 ژوری چاوەڕوانی</h2>
+            
+            <div class="room-code" id="roomCodeDisplay"></div>
+            
+            <div class="players-list" id="playersList"></div>
+            
+            <button id="startGameBtn" onclick="startGame()" class="hidden">دەستپێکردنی یاری</button>
+            <button class="secondary" onclick="backToMain()">گەڕانەوە</button>
+        </div>
+        
+        <!-- ژوری یاری -->
+        <div id="gameRoom" class="card hidden">
+            <div id="playerArea">
+                <div id="normalPlayerView" class="hidden">
+                    <h2>📝 وشەکەت:</h2>
+                    <div class="word-display" id="secretWord"></div>
+                </div>
+                
+                <div id="imposterView" class="imposter-box hidden">
+                    <h2>🚨 تۆ ئیمپۆستەری!</h2>
+                    <p>هەوڵ بدە لە چاتەوە وشەکە بدۆزیتەوە</p>
+                </div>
+            </div>
+            
+            <!-- چات -->
+            <div class="chat-box" id="chatMessages"></div>
+            
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chatInput" placeholder="پەیامێک بنووسە..." style="flex: 1;" onkeypress="if(event.key === 'Enter') sendMessage()">
+                <button onclick="sendMessage()" style="width: auto; padding: 15px 25px;">📨</button>
+            </div>
+            
+            <button onclick="showVoting()" class="secondary" style="margin-top: 20px;">🗳️ دەنگدان</button>
+            
+            <div id="votingSection" class="hidden" style="margin-top: 20px;">
+                <h3>کێ ئیمپۆستەرە؟</h3>
+                <div id="votingButtons"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // لیستی وشەکان
+        const WORDS = ['شێر', 'پشیلە', 'فیل', 'کەر', 'مەیمون', 'سەگ', 'ڕێوی', 'ورچ', 'کەفوتر', 'ماسی'];
+        
+        // داتاکان
+        let gameData = {
+            player: {
+                name: '',
+                isCreator: false,
+                roomId: null
+            },
+            room: {
+                players: [],
+                gameStarted: false,
+                imposterIndex: -1,
+                currentWord: '',
+                messages: []
+            }
+        };
+        
+        function showCreateGame() {
+            const name = document.getElementById('playerName').value || 'یاریکەر';
+            const roomId = 'ROOM' + Math.floor(Math.random() * 10000);
+            
+            gameData.player = {
+                name: name,
+                isCreator: true,
+                roomId: roomId
+            };
+            
+            gameData.room = {
+                players: [{name: name, isCreator: true}],
+                gameStarted: false,
+                imposterIndex: -1,
+                currentWord: '',
+                messages: []
+            };
+            
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('waitingRoom').classList.remove('hidden');
+            document.getElementById('roomCodeDisplay').textContent = roomId;
+            
+            updatePlayersList();
+            
+            // نیشاندانی دوگمەی دەستپێکردن
+            document.getElementById('startGameBtn').classList.remove('hidden');
+        }
+        
+        function showJoinGame() {
+            document.getElementById('joinGameSection').classList.remove('hidden');
+        }
+        
+        function joinGame() {
+            const name = document.getElementById('playerName').value || 'یاریکەر';
+            const roomId = document.getElementById('roomCodeInput').value;
+            
+            if (!roomId) {
+                alert('تکایە کۆدی ژورەکە بنووسە');
+                return;
+            }
+            
+            gameData.player = {
+                name: name,
+                isCreator: false,
+                roomId: roomId
+            };
+            
+            gameData.room.players.push({name: name, isCreator: false});
+            
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('waitingRoom').classList.remove('hidden');
+            document.getElementById('roomCodeDisplay').textContent = roomId;
+            
+            updatePlayersList();
+        }
+        
+        function updatePlayersList() {
+            const list = document.getElementById('playersList');
+            list.innerHTML = '<h3>یاریکەران:</h3>';
+            
+            gameData.room.players.forEach(player => {
+                list.innerHTML += `
+                    <div class="player-item ${player.isCreator ? 'creator' : ''}">
+                        <span>${player.name}</span>
+                        ${player.isCreator ? '<span class="badge">دروستکەر</span>' : ''}
+                    </div>
+                `;
+            });
+        }
+        
+        function startGame() {
+            if (!gameData.player.isCreator) {
+                alert('تەنها دروستکەر دەتوانێت دەستپێبکات');
+                return;
+            }
+            
+            if (gameData.room.players.length < 2) {
+                alert('پێویستە بەلایەنی کەم 2 یاریکەر هەبێت');
+                return;
+            }
+            
+            // هەڵبژاردنی ئیمپۆستەر
+            gameData.room.imposterIndex = Math.floor(Math.random() * gameData.room.players.length);
+            
+            // هەڵبژاردنی وشە
+            const randomWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+            gameData.room.currentWord = randomWord;
+            gameData.room.gameStarted = true;
+            gameData.room.messages = [];
+            
+            document.getElementById('waitingRoom').classList.add('hidden');
+            document.getElementById('gameRoom').classList.remove('hidden');
+            
+            // پشکنینی ڕۆڵ
+            const playerIndex = gameData.room.players.findIndex(p => p.name === gameData.player.name);
+            
+            if (playerIndex === gameData.room.imposterIndex) {
+                document.getElementById('imposterView').classList.remove('hidden');
+                document.getElementById('normalPlayerView').classList.add('hidden');
+            } else {
+                document.getElementById('normalPlayerView').classList.remove('hidden');
+                document.getElementById('imposterView').classList.add('hidden');
+                document.getElementById('secretWord').textContent = gameData.room.currentWord;
+            }
+            
+            addMessage('سیستەم', '🎮 یاری دەستی پێکرد!');
+            addMessage('سیستەم', '🗣️ یاریکەران: باسی وشەکە بکەن...');
+        }
+        
+        function addMessage(sender, text) {
+            gameData.room.messages.push({sender, text});
+            updateChat();
+        }
+        
+        function updateChat() {
+            const chatBox = document.getElementById('chatMessages');
+            chatBox.innerHTML = '';
+            
+            gameData.room.messages.forEach(msg => {
+                chatBox.innerHTML += `
+                    <div class="message">
+                        <strong>${msg.sender}:</strong> ${msg.text}
+                    </div>
+                `;
+            });
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message && gameData.room.gameStarted) {
+                addMessage(gameData.player.name, message);
+                input.value = '';
+            }
+        }
+        
+        function showVoting() {
+            if (!gameData.room.gameStarted) return;
+            
+            document.getElementById('votingSection').classList.remove('hidden');
+            const votingDiv = document.getElementById('votingButtons');
+            votingDiv.innerHTML = '';
+            
+            gameData.room.players.forEach(player => {
+                votingDiv.innerHTML += `<button onclick="vote('${player.name}')">${player.name}</button>`;
+            });
+        }
+        
+        function vote(playerName) {
+            const imposterName = gameData.room.players[gameData.room.imposterIndex].name;
+            const playerIndex = gameData.room.players.findIndex(p => p.name === gameData.player.name);
+            const isPlayerImposter = (playerIndex === gameData.room.imposterIndex);
+            
+            let message = '';
+            
+            if (playerName === imposterName) {
+                message = '✅ دروست! ئەو ئیمپۆستەرە.';
+            } else {
+                message = `❌ نادروست! ئیمپۆستەر ${imposterName} بوو.`;
+            }
+            
+            message += `\n\n📝 وشەکە: ${gameData.room.currentWord}`;
+            
+            if (isPlayerImposter) {
+                if (playerName === imposterName) {
+                    message = '😵 تۆ ئیمپۆستەری و خۆت دەنگی بە خۆت دا!';
+                } else {
+                    message = '🎭 ئیمپۆستەر بردیەوە! تۆ نەدۆزرایتەوە.';
+                }
+                message += `\n\n📝 وشەکە: ${gameData.room.currentWord}`;
+            }
+            
+            alert(message);
+            
+            // گەڕانەوە بۆ سەرەتا
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        }
+        
+        function backToMain() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
